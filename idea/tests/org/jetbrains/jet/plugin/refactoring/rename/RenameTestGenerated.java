@@ -131,4 +131,9 @@ public class RenameTestGenerated extends AbstractRenameTest {
         doTest("idea/testData/refactoring/rename/renameKotlinPackageFunctionFromJava/renameKotlinPackageFunctionFromJava.test");
     }
     
+    @TestMetadata("renameKotlinProperty/renameKotlinProperty.test")
+    public void testRenameKotlinProperty_RenameKotlinProperty() throws Exception {
+        doTest("idea/testData/refactoring/rename/renameKotlinProperty/renameKotlinProperty.test");
+    }
+    
 }

@@ -507,4 +507,14 @@ public class DescriptorUtils {
                builtIns.getNumber().getDefaultType().equals(type) ||
                builtIns.getAnyType().equals(type);
     }
+
+    @NotNull
+    public static CallableDescriptor getDeepestOverridden(@NotNull CallableDescriptor callableDescriptor) {
+        CallableDescriptor deepestOverridden = callableDescriptor;
+        while (!deepestOverridden.getOverriddenDescriptors().isEmpty()) {
+            deepestOverridden = deepestOverridden.getOverriddenDescriptors().iterator().next();
+        }
+
+        return deepestOverridden;
+    }
 }

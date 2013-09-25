@@ -40,24 +40,51 @@ import com.intellij.refactoring.listeners.RefactoringElementListener
 import org.jetbrains.jet.lang.psi.JetFile
 import org.jetbrains.jet.lang.resolve.java.JvmAbi
 import com.intellij.openapi.editor.Editor
-import com.intellij.refactoring.rename.RenameJavaMethodProcessor
 import org.jetbrains.jet.lexer.JetTokens
 import org.jetbrains.jet.plugin.project.AnalyzerFacadeWithCache
+import org.jetbrains.jet.lang.resolve.BindingContextUtils
+import org.jetbrains.jet.lang.resolve.BindingContext
+import org.jetbrains.jet.lang.descriptors.CallableDescriptor
+import org.jetbrains.jet.lang.psi.JetPsiUtil
+import org.jetbrains.jet.lang.psi.JetClassOrObject
+import com.intellij.openapi.ui.Messages
+import org.jetbrains.jet.lang.resolve.DescriptorUtils
+import org.jetbrains.jet.lang.psi.JetElement
+import org.jetbrains.jet.lang.resolve.java.jetAsJava.KotlinLightMethod
 
 public class RenameKotlinPropertyProcessor : RenamePsiElementProcessor() {
     override fun canProcessElement(element: PsiElement) = element is JetProperty
 
-    private fun Boolean?.isTrue() = (this != null && this == true)
-
     override fun substituteElementToRename(element: PsiElement?, editor: Editor?): PsiElement? {
-        if (element is JetProperty) {
-            if (element.getModifierList()?.hasModifier(JetTokens.OVERRIDE_KEYWORD).isTrue()) {
-                val bindingContext = AnalyzerFacadeWithCache.getContextForElement(element)
-                // bindingContext.get(BinCon)
+        val jetProperty = element as JetProperty
+
+        val jetElement = findDeepestOverriddenElement(jetProperty)
+
+        if (jetElement is JetProperty && jetElement.isWritable() && jetElement.isPhysical()) {
+            val superProperty: JetProperty = jetElement
+
+            if (ApplicationManager.getApplication()!!.isUnitTestMode()) {
+                return superProperty
+            }
+
+            val propertyText: String? =
+                    JetPsiUtil.getFQName(superProperty)?.parent()?.asString() ?:
+                    (superProperty.getParent() as? JetClassOrObject)?.getName()
+
+            val result = Messages.showYesNoCancelDialog(
+                    superProperty.getProject(),
+                    if (propertyText != null) "Do you want to rename base property from \n$propertyText" else "Do you want to rename base property",
+                    "Rename warning",
+                    Messages.getQuestionIcon())
+
+            return when(result) {
+                Messages.YES -> superProperty
+                Messages.NO -> jetProperty
+                else -> /* Cancel rename */ null
             }
         }
 
-        return super.substituteElementToRename(element, editor);
+        return super.substituteElementToRename(element, editor)
     }
 
     override fun prepareRenaming(element: PsiElement?, newName: String?, allRenames: MutableMap<PsiElement, String>, scope: SearchScope) {
@@ -78,11 +105,11 @@ public class RenameKotlinPropertyProcessor : RenamePsiElementProcessor() {
 
     private fun addRenameElements(psiMethod: PsiMethod?, baseName: String?, newName: String?, allRenames: MutableMap<PsiElement, String>, scope: SearchScope) {
         if (psiMethod != null) {
-            OverridingMethodsSearch.search(psiMethod, scope, true)?.forEach { overrider ->
+            OverridingMethodsSearch.search(psiMethod, scope, true).forEach { overrider ->
                 var overriderElement: PsiNamedElement = overrider
 
-                if (overriderElement is PsiMirrorElement) {
-                    val prototype = (overriderElement as PsiMirrorElement).getPrototype()
+                if (overriderElement is KotlinLightMethod) {
+                    val prototype = (overriderElement as KotlinLightMethod).getOriginalElement()
                     if (prototype is PsiMethod) {
                         overriderElement = prototype
                     }
@@ -160,5 +187,26 @@ public class RenameKotlinPropertyProcessor : RenamePsiElementProcessor() {
         else {
             super.renameElement(element, newName, usages, listener)
         }
+    }
+
+    private fun findDeepestOverriddenElement(jetProperty: JetProperty): JetElement? {
+        if (jetProperty.getModifierList()?.hasModifier(JetTokens.OVERRIDE_KEYWORD).equals(true)) {
+            val bindingContext = AnalyzerFacadeWithCache.getContextForElement(jetProperty)
+            val descriptor = bindingContext.get(BindingContext.DECLARATION_TO_DESCRIPTOR, jetProperty)
+
+            if (descriptor != null) {
+                assert(descriptor is CallableDescriptor, "Should be property descriptor")
+
+                val deepestOverridden = DescriptorUtils.getDeepestOverridden(descriptor as CallableDescriptor)
+                if (deepestOverridden != descriptor) {
+                    val superPsiElement = BindingContextUtils.descriptorToDeclaration(bindingContext, deepestOverridden)
+                    if (superPsiElement is JetElement) {
+                        return superPsiElement
+                    }
+                }
+            }
+        }
+
+        return null
     }
 }
