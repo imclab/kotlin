@@ -106,4 +106,9 @@ public class OutOfBlockModificationTestGenerated extends AbstractOutOfBlockModif
         doTest("idea/testData/codeInsight/outOfBlock/InPropertyWithInference.kt");
     }
     
+    @TestMetadata("TopLevelPropertyWithType.kt")
+    public void testTopLevelPropertyWithType() throws Exception {
+        doTest("idea/testData/codeInsight/outOfBlock/TopLevelPropertyWithType.kt");
+    }
+    
 }
