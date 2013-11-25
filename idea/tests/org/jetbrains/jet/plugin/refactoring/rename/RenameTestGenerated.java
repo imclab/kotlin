@@ -71,6 +71,11 @@ public class RenameTestGenerated extends AbstractRenameTest {
         doTest("idea/testData/refactoring/rename/renameKotlinBaseMethod/kotlinBaseFunction.test");
     }
     
+    @TestMetadata("renameKotlinBaseProperty/kotlinBaseProperty.test")
+    public void testRenameKotlinBaseProperty_KotlinBaseProperty() throws Exception {
+        doTest("idea/testData/refactoring/rename/renameKotlinBaseProperty/kotlinBaseProperty.test");
+    }
+    
     @TestMetadata("renameKotlinClass/javaWrapperForKotlinClass.test")
     public void testRenameKotlinClass_JavaWrapperForKotlinClass() throws Exception {
         doTest("idea/testData/refactoring/rename/renameKotlinClass/javaWrapperForKotlinClass.test");

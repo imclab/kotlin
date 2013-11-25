@@ -374,10 +374,12 @@ public class PropertyCodegen extends GenerationStateAware {
         }
     }
 
+    @NotNull
     public static String getterName(Name propertyName) {
         return JvmAbi.GETTER_PREFIX + StringUtil.capitalizeWithJavaBeanConvention(propertyName.asString());
     }
 
+    @NotNull
     public static String setterName(Name propertyName) {
         return JvmAbi.SETTER_PREFIX + StringUtil.capitalizeWithJavaBeanConvention(propertyName.asString());
     }
