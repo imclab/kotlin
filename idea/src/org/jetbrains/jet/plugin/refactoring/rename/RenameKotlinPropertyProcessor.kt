@@ -53,10 +53,14 @@ import org.jetbrains.jet.lang.psi.JetElement
 import org.jetbrains.jet.lang.resolve.java.jetAsJava.KotlinLightMethod
 
 public class RenameKotlinPropertyProcessor : RenamePsiElementProcessor() {
-    override fun canProcessElement(element: PsiElement) = element is JetProperty
+    override fun canProcessElement(element: PsiElement): Boolean = unwrapToJetProperty(element) != null
 
     override fun substituteElementToRename(element: PsiElement?, editor: Editor?): PsiElement? {
-        val jetProperty = element as JetProperty
+        val jetProperty: JetProperty = when (element) {
+            is JetProperty -> element
+            is KotlinLightMethod -> element.getOriginalElement() as JetProperty
+            else -> throw IllegalStateException("Can't be for element $element there because of canProcessElement()")
+        }
 
         val jetElement = findDeepestOverriddenElement(jetProperty)
 
@@ -208,5 +212,11 @@ public class RenameKotlinPropertyProcessor : RenamePsiElementProcessor() {
         }
 
         return null
+    }
+
+    private fun unwrapToJetProperty(element: PsiElement?): JetProperty? = when (element) {
+        is JetProperty -> element
+        is KotlinLightMethod -> element.getOriginalElement() as? JetProperty
+        else -> null
     }
 }

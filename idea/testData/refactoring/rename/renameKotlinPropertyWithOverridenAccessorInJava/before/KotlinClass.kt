@@ -1,5 +1,5 @@
 package test.rename
 
-class KotlinClass {
-    public var foo: String = "Test"
+open class KotlinClass {
+    public open var foo: String = "Test"
 }

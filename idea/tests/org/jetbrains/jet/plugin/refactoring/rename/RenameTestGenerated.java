@@ -36,6 +36,11 @@ public class RenameTestGenerated extends AbstractRenameTest {
         JetTestUtils.assertAllTestsPresentInSingleGeneratedClass(this.getClass(), "org.jetbrains.jet.generators.tests.TestsPackage", new File("idea/testData/refactoring/rename"), Pattern.compile("^(.+)\\.test$"));
     }
     
+    @TestMetadata("renameEnumProperty/renameEnumProperty.test")
+    public void testRenameEnumProperty_RenameEnumProperty() throws Exception {
+        doTest("idea/testData/refactoring/rename/renameEnumProperty/renameEnumProperty.test");
+    }
+    
     @TestMetadata("renameJavaClass/renameJavaClass.test")
     public void testRenameJavaClass_RenameJavaClass() throws Exception {
         doTest("idea/testData/refactoring/rename/renameJavaClass/renameJavaClass.test");

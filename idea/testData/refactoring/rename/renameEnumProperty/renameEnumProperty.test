@@ -1,0 +1,6 @@
+{
+    "type": "KOTLIN_ENUM_PROPERTY",
+    "classFQN": "Whatever",
+    "oldName": "someProp",
+    "newName": "otherProp"
+}
