@@ -151,4 +151,14 @@ public class RenameTestGenerated extends AbstractRenameTest {
         doTest("idea/testData/refactoring/rename/renameKotlinProperty/renameKotlinProperty.test");
     }
     
+    @TestMetadata("renameKotlinPropertyWithOverridenAccessorInJava/renameWithGetter.test")
+    public void testRenameKotlinPropertyWithOverridenAccessorInJava_RenameWithGetter() throws Exception {
+        doTest("idea/testData/refactoring/rename/renameKotlinPropertyWithOverridenAccessorInJava/renameWithGetter.test");
+    }
+    
+    @TestMetadata("renameKotlinPropertyWithOverridenAccessorInJava/renameWithSetter.test")
+    public void testRenameKotlinPropertyWithOverridenAccessorInJava_RenameWithSetter() throws Exception {
+        doTest("idea/testData/refactoring/rename/renameKotlinPropertyWithOverridenAccessorInJava/renameWithSetter.test");
+    }
+    
 }
