@@ -1,5 +1,5 @@
 package test.rename
 
 class KotlinClass {
-    public var foo: String = "Test"
+    public var bar: String = "Test"
 }

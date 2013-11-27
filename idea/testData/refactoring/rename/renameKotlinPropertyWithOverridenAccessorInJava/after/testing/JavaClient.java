@@ -5,12 +5,12 @@ import test.rename.KotlinClass;
 class JavaClient {
     static class Some extends KotlinClass {
         @Override
-        public String getFoo() {
+        public String getBar() {
             return "Overriden";
         }
 
         @Override
-        public void setFoo(String value) {
+        public void setBar(String value) {
         }
     }
 }
