@@ -1,0 +1,4 @@
+val a = 1.0F
+
+// TYPE: "F"
+// NO_POPUP

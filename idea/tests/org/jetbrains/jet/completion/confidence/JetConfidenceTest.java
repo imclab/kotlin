@@ -16,6 +16,7 @@
 
 package org.jetbrains.jet.completion.confidence;
 
+import com.google.common.collect.ImmutableList;
 import com.intellij.codeInsight.CodeInsightSettings;
 import com.intellij.codeInsight.completion.CodeCompletionHandlerBase;
 import com.intellij.codeInsight.completion.CompletionType;
@@ -23,15 +24,26 @@ import com.intellij.codeInsight.completion.LightCompletionTestCase;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.util.text.StringUtil;
+import junit.framework.Assert;
 import org.apache.commons.lang.SystemUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.InTextDirectivesUtils;
 import org.jetbrains.jet.plugin.PluginTestCaseBase;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.jetbrains.jet.completion.ExpectedCompletionUtils.getItemsInformation;
+import static org.jetbrains.jet.completion.ExpectedCompletionUtils.listToString;
 
 public class JetConfidenceTest extends LightCompletionTestCase {
     private static final String TYPE_DIRECTIVE_PREFIX = "// TYPE:";
+    private static final String NO_POPUP_DIRECTIVE = "// NO_POPUP";
+
+    private static final List<String> KNOWN_PREFIXES = ImmutableList.of(
+            TYPE_DIRECTIVE_PREFIX,
+            NO_POPUP_DIRECTIVE);
 
     public void testCompleteOnDotOutOfRanges() {
         doTest();
@@ -61,6 +73,18 @@ public class JetConfidenceTest extends LightCompletionTestCase {
         doTest();
     }
 
+    public void testNoAutoPopupAfterFloat() {
+        doTest();
+    }
+
+    public void testNoAutoPopupAfterBigFloat() {
+        doTest();
+    }
+
+    public void testNoAutoPopupAfterLong() {
+        doTest();
+    }
+
     protected void doTest() {
         boolean completeByChars = CodeInsightSettings.getInstance().SELECT_AUTOPOPUP_SUGGESTIONS_BY_CHARS;
 
@@ -68,11 +92,24 @@ public class JetConfidenceTest extends LightCompletionTestCase {
 
         try {
             configureByFile(getBeforeFileName());
+            InTextDirectivesUtils.assertHasUnknownPrefixes(getEditor().getDocument().getText(), KNOWN_PREFIXES);
+
             type(getTypeTextFromFile());
+
+            checkNoAutoPopup();
             checkResultByFile(getAfterFileName());
         }
         finally {
             CodeInsightSettings.getInstance().SELECT_AUTOPOPUP_SUGGESTIONS_BY_CHARS = completeByChars;
+        }
+    }
+
+    protected void checkNoAutoPopup() {
+        if (InTextDirectivesUtils.isDirectiveDefined(getEditor().getDocument().getText(), NO_POPUP_DIRECTIVE)) {
+            complete(0);
+            if (myItems != null) {
+                Assert.fail("Auto popup is unexpected. Items: " + listToString(getItemsInformation(myItems)));
+            }
         }
     }
 
