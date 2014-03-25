@@ -188,6 +188,8 @@ public class TopDownAnalyzer {
                                     c.addFile(file);
 
                                     DescriptorResolver.resolvePackageHeader(packageDirective, moduleDescriptor, trace);
+                                    DescriptorResolver.registerFileInPackage(trace, file);
+
                                     registerDeclarations(file.getDeclarations());
 
                                     topLevelFqNames.put(file.getPackageFqName(), packageDirective);
