@@ -102,7 +102,8 @@ public class AnnotationResolver {
 
     private Annotations resolveAnnotationEntries(
             @NotNull JetScope scope,
-            @NotNull List<JetAnnotationEntry> annotationEntryElements, @NotNull BindingTrace trace,
+            @NotNull List<JetAnnotationEntry> annotationEntryElements,
+            @NotNull BindingTrace trace,
             boolean shouldResolveArguments
     ) {
         if (annotationEntryElements.isEmpty()) return Annotations.EMPTY;
@@ -111,7 +112,7 @@ public class AnnotationResolver {
             AnnotationDescriptorImpl descriptor = trace.get(BindingContext.ANNOTATION, entryElement);
             if (descriptor == null) {
                 descriptor = new AnnotationDescriptorImpl();
-                resolveAnnotationStub(scope, entryElement, descriptor, trace);
+                descriptor.setAnnotationType(resolveAnnotationType(scope, entryElement, trace));
                 trace.record(BindingContext.ANNOTATION, entryElement, descriptor);
             }
 
@@ -124,17 +125,8 @@ public class AnnotationResolver {
         return new AnnotationsImpl(result);
     }
 
-    public void resolveAnnotationStub(
-            @NotNull JetScope scope,
-            @NotNull JetAnnotationEntry entryElement,
-            @NotNull AnnotationDescriptorImpl annotationDescriptor,
-            @NotNull BindingTrace trace
-    ) {
-        annotationDescriptor.setAnnotationType(resolveAnnotationType(scope, entryElement, trace));
-    }
-
     @NotNull
-    public JetType resolveAnnotationType(
+    private JetType resolveAnnotationType(
             JetScope scope,
             JetAnnotationEntry entryElement,
             BindingTrace trace
